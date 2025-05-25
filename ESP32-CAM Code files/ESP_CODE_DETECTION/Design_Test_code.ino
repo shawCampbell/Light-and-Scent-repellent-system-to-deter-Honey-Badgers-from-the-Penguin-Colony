@@ -1,7 +1,7 @@
 #include <Wire.h>
 #include <BH1750.h>
 
-// ESP32-CAM I2C pins
+// ESP32-CAM I2C pins for the light sensor
 #define I2C_SDA 14
 #define I2C_SCL 15
 
@@ -10,14 +10,14 @@
 #define PIR_PIN 12           // PIR motion sensor input
 #define IR_BREAK_PIN 2       // IR break beam sensor input
 #define FLASH_PIN 4          // Onboard flash LED
-#define EXT_LED_PIN 13       // External LED
+#define EXT_LED_PIN 13       // Motion detected LED indicator
 
 // Light thresholds (lux)
-const float DARK_THRESHOLD = 20.0;   // Activate system below this
-const float LIGHT_THRESHOLD = 100.0; // Deactivate system above this
+const float DARK_THRESHOLD = 20.0;   // Activate system below this (Nighttime)
+const float LIGHT_THRESHOLD = 100.0; // Deactivate system above this (Daytime)
 
 // PIR sensor settings
-const unsigned long PIR_WARMUP_MS = 30000; // 30s warmup time
+const unsigned long PIR_WARMUP_MS = 1000; // 1s warmup time
 const unsigned long PIR_TRIGGER_DURATION = 5000; // 5s trigger duration
 
 BH1750 lightMeter;
@@ -53,7 +53,7 @@ void setup() {
   digitalWrite(FLASH_PIN, LOW);
   digitalWrite(EXT_LED_PIN, LOW);
   
-  Serial.println("System ready - IR sensor HIGH when broken");
+  Serial.println("SYSTEM READY");
 }
 
 void loop() {
@@ -76,7 +76,7 @@ void loop() {
     digitalWrite(POWER_CONTROL_PIN, HIGH);
     systemActive = true;
     pirActivationTime = millis();
-    Serial.println("System ON - Dark conditions");
+    Serial.println("SYSTEM ON - Dark conditions");
     Serial.println("PIR sensor warming up...");
     delay(1000); // Initial delay for power stabilization
   } 
@@ -87,7 +87,7 @@ void loop() {
     digitalWrite(EXT_LED_PIN, LOW);
     systemActive = false;
     pirTriggered = false;
-    Serial.println("System OFF - Bright conditions");
+    Serial.println("SYSTEM OFF - Bright conditions");
   }
 
   // Sensor processing when active
@@ -102,7 +102,7 @@ void loop() {
         pirTriggered = true;
         lastPirTrigger = millis();
         digitalWrite(FLASH_PIN, HIGH);
-        Serial.println("Motion detected - Flash ON");
+        Serial.println("MOTION DETECTED - Flash ON");
       }
       
       // Read IR break beam (now HIGH when beam is broken)
@@ -111,7 +111,8 @@ void loop() {
       // Control external LED based on both sensors
       if (pirTriggered && beamBroken) {
         digitalWrite(EXT_LED_PIN, HIGH);
-        Serial.println("Dual trigger - External LED ON");
+        Serial.println("DUAL TRIGGER - External LED ON");
+        Serial.println("Capturing image!");
       } else {
         digitalWrite(EXT_LED_PIN, LOW);
       }
@@ -120,10 +121,10 @@ void loop() {
       if (pirTriggered && (millis() - lastPirTrigger > PIR_TRIGGER_DURATION)) {
         pirTriggered = false;
         digitalWrite(FLASH_PIN, LOW);
-        Serial.println("Motion timeout - Flash OFF");
+        Serial.println("MOTION TIMEOUT - Flash OFF");
       }
     }
   }
 
-  delay(1000); // Main loop delay
+  delay(2000); // Main loop delay
 }
