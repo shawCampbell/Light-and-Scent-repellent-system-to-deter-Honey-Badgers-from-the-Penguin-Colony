@@ -3,7 +3,7 @@
 As part of the University of Cape Town's EEE4113F course, this repository contains the system implementation and documentation for Group 31's predator deterrent project. I did the networking and UI part of the project.
 
 <p align="center">
-  <img src="networking-diagram.png" alt="peer-to-peer-networking-mechanism" width="60%">
+  <img src="networking-diagram.png" alt="peer-to-peer-networking-mechanism" width="70%">
 </p>
 <p align="center">
   <i>Image From Report Showing the Resulting Peer-to-Peer Networking Design</i>
